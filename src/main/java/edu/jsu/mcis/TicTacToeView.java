@@ -1,60 +1,82 @@
 package edu.jsu.mcis;
 
-import java.util.Scanner;
+import java.awt.*;
+import javax.swing.*;
 
-public class TicTacToeView {
+public class TicTacToeView extends JPanel {
     
-    private final Scanner keyboard;
-    
-    /* CONSTRUCTOR */
-	
-    public TicTacToeView() {
-        
-        /* Initialize scanner (for console keyboard) */
-        
-        keyboard = new Scanner(System.in);
-        
-    }
-	
-    public TicTacToeMove getNextMove(boolean isXTurn) {
-        
-        /* Prompt the player to enter the row and the column of their next move.
-           Return as a TicTacToeMove object. */
+    private final TicTacToeController controller;
 
-        if (isXTurn){
-            System.out.println("Player 1 (X) Move:\n");
-        }  
-        else {
-            System.out.println("Player 2 (O) Move:\n");
+    private final JButton[][] board;
+    private final JPanel squaresPanel;
+    private final JLabel resultLabel;
+
+    public TicTacToeView(TicTacToeController controller, int width) {
+
+        this.controller = controller;
+
+        this.setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+        board = new JButton[width][width];
+        squaresPanel = new JPanel(new GridLayout(width,width));
+        resultLabel = new JLabel();
+        resultLabel.setName("ResultLabel");
+        
+        for (int row = 0; row < width; row++) {
+            
+            for (int col = 0; col < width; col++) {
+                
+                board[row][col] = new JButton(); 
+                board[row][col].addActionListener(controller);
+                board[row][col].setName("Square" + row + col);
+                board[row][col].setPreferredSize(new Dimension(64,64));
+                squaresPanel.add(board[row][col]);
+                
+            }
+            
         }
 
-        System.out.println("Enter the row and column numbers, separated by a space: ");
+        this.add(squaresPanel);
+        this.add(resultLabel);
         
-        int userRow = keyboard.nextInt();
-        int userCol = keyboard.nextInt();
-        
-        return new TicTacToeMove(userRow, userCol);
-        
-        
+        resultLabel.setText("Welcome to Tic-Tac-Toe!");
 
     }
+        
+    public void updateSquares() {
 
-    public void showInputError() {
+        /* Refresh the GUI with updated data from the Model (via the Controller) */
 
-        System.out.println("Entered location is invalid, already marked, or out of bounds.");
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
+                board[row][col].setEnabled(true);
+                board[row][col].setText(controller.getMarkAsString(row, col));
+            }
+            
+        }
 
     }
+ 
+    public void disableSquares() {
+    
+        /* Disable buttons (to disallow input after game is over) */
 
-    public void showResult(String r) {
-
-        System.out.println(r + "!");
-
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
+                board[row][col].setEnabled(false);
+            }
+        }
+    }
+        
+    public void showResult(String message) {
+        
+        resultLabel.setText(message);
+        
     }
     
-    public void showBoard(String board) {
+    public void clearResult() {
         
-        System.out.println("\n" + board);
+        resultLabel.setText(" ");
         
     }
-	
+
 }
